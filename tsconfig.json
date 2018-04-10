@@ -15,9 +15,12 @@
       "jest"
     ],
     "paths": {
+      "game/*": ["src/game/*"],
       "@/*": [
         "src/*"
-      ]
+      ],
+      
+      "ludic": ["node_modules/@ludic/ludic"]
     }
   },
   "include": [
