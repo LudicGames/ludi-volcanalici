@@ -1,5 +1,6 @@
 import { LudicApp, ScreenManager } from 'ludic'
-import LobbyScreen from '@/game/screens/lobbyScreen'
+import LobbyScreen from '@/game/screens/LobbyScreen'
+import GameScreen from '@/game/screens/GameScreen'
 
 export default class GameApp extends LudicApp {
   public screenManager: ScreenManager
@@ -8,8 +9,10 @@ export default class GameApp extends LudicApp {
     super(config)
     this.screenManager = new ScreenManager(this)
     this.screenManager.addScreenEventListener(this)
-    this.screenManager.addScreen(new LobbyScreen())
+
+    this.screenManager.addScreen(new GameScreen())
   }
+
   public onScreenFinished(screen, manager, data) {
 
   }
