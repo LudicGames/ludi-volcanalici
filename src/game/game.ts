@@ -1,5 +1,5 @@
 import { LudicApp, ScreenManager } from 'ludic'
-import LobbyScreen from '@/game/screens/LobbyScreen'
+// import LobbyScreen from '@/game/screens/LobbyScreen'
 import GameScreen from '@/game/screens/GameScreen'
 
 export default class GameApp extends LudicApp {

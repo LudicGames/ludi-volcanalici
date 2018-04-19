@@ -14,7 +14,7 @@ import RenderSystem from '$systems/Render'
 import MovementSystem from '$systems/Movement'
 
 export default class GameScreen extends Screen {
-  constructor(data) {
+  constructor(data={}) {
     super()
     this.players = data.players
     this.teams = data.teams
@@ -22,11 +22,11 @@ export default class GameScreen extends Screen {
 
   public onAddedToManager() {
     this.initWorld()
-    this.initSystems()
-    this.initEntities()
+    // this.initSystems()
+    // this.initEntities()
   }
 
-  initWorld(){
+  public initWorld() {
     this.camera = new Camera(this.$app.$canvas)
     this.camera.centerWorldToCamera()
 
@@ -38,54 +38,54 @@ export default class GameScreen extends Screen {
     this.engine = new Engine(this.$app)
   }
 
-  initSystems(){
-    // Clear
-    this.clearSystem = new BaseSystem(true, -100, (delta)=>{
-      this.$app.$canvas.clear('#0C141F')
-    })
-    this.engine.addSystem(this.clearSystem)
+  // public initSystems() {
+  //   // Clear
+  //   this.clearSystem = new BaseSystem(true, -100, (delta)=>{
+  //     this.$app.$canvas.clear('#0C141F')
+  //   })
+  //   this.engine.addSystem(this.clearSystem)
 
-    // Camera
-    this.cameraSystem = new BaseSystem(true, 5, (delta)=>{
-      this.camera.draw(this.$app.$context)
-      // this.camera.drawAxes(this.$app.$context)
-    })
-    this.engine.addSystem(this.cameraSystem)
+  //   // Camerae
+  //   this.cameraSystem = new BaseSystem(true, 5, (delta)=>{
+  //     this.camera.draw(this.$app.$context)
+  //     // this.camera.drawAxes(this.$app.$context)
+  //   })
+  //   this.engine.addSystem(this.cameraSystem)
 
-    // Render
-    this.renderSystem = new RenderSystem(this.$app.$context)
-    this.engine.addSystem(this.renderSystem)
+  //   // Render
+  //   this.renderSystem = new RenderSystem(this.$app.$context)
+  //   this.engine.addSystem(this.renderSystem)
 
-    // Input
-    this.inputSystem = new BaseSystem(true, 1, ()=>{
-      this.$app.$input.update()
-    })
-    this.engine.addSystem(this.inputSystem)
+  //   // Input
+  //   this.inputSystem = new BaseSystem(true, 1, ()=>{
+  //     this.$app.$input.update()
+  //   })
+  //   this.engine.addSystem(this.inputSystem)
 
-    // Movement
-    this.movementSystem = new MovementSystem(this.$app)
-    this.engine.addSystem(this.movementSystem)
+  //   // Movement
+  //   this.movementSystem = new MovementSystem(this.$app)
+  //   this.engine.addSystem(this.movementSystem)
+  // }
+
+  // public initEntities() {
+  //   // Walls
+  //   this.walls = new Walls(this.camera.width / this.camera.ptm, this.camera.height/ this.camera.ptm, this.world, 'orange', -1)
+  //   this.engine.addEntity(this.walls)
+
+  //   // Players
+  //   this.players.forEach((player, index)=>{
+  //     player.entity = new Player({x: 0, y: 0, width: 1, height: 6, color: "green", world: this.world, gamepadIndex: index})
+  //     this.engine.addEntity(player.entity)
+  //   })
+  // }
+
+  public onDestroy(){
+
   }
 
-  initEntities(){
-    // Walls
-    this.walls = new Walls(this.camera.width / this.camera.ptm, this.camera.height/ this.camera.ptm, this.world, 'orange', -1)
-    this.engine.addEntity(this.walls)
-
-    // Players
-    this.players.forEach((player, index)=>{
-      player.entity = new Player({x: 0, y: 0, width: 1, height: 6, color: "green", world: this.world, gamepadIndex: index})
-      this.engine.addEntity(player.entity)
-    })
-  }
-
-  onDestroy(){
-
-  }
-
-  update(delta, time){
-    this.world.step(delta)
-    this.engine.update(delta, time)
+  public update(delta, time){
+    // this.world.step(delta)
+    // this.engine.update(delta, time)
     // this.world.drawDebug(true)
   }
 }
