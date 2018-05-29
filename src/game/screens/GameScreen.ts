@@ -14,7 +14,9 @@ import RenderSystem from '$systems/Render'
 import MovementSystem from '$systems/Movement'
 
 export default class GameScreen extends Screen {
-  constructor(data={}) {
+  public camera: Camera
+
+  constructor(data = {}) {
     super()
     this.players = data.players
     this.teams = data.teams

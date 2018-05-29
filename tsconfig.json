@@ -20,7 +20,10 @@
         "src/*"
       ],
       
-      "ludic": ["node_modules/@ludic/ludic"]
+      "ludic": ["node_modules/@ludic/ludic"],
+      "ludic-vue": ["node_modules/@ludic/ludic-vue"],
+      "ludic-box2d": ["node_modules/@ludic/ludic-box2d"],
+      "ein": ["node_modules/@ludic/ein"],
     }
   },
   "include": [
