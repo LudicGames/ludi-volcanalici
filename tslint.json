@@ -7,6 +7,8 @@
     "quotemark": [true, "single"],
     "indent": [true, "spaces", 2],
     "semicolon": [true, "never"],
+    "whitespace": [true, "check-decl", "check-operator"],
+    "one-line": [true, "check-else", "check-finally", "check-catch"],
     "interface-name": false,
     "ordered-imports": false,
     "object-literal-sort-keys": false,

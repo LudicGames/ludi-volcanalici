@@ -1,7 +1,8 @@
 import {BaseEntity} from 'ein'
 import {Box2D} from 'ludic-box2d'
+import { InputEventListener } from '../../../../node_modules/@ludic/ludic';
 
-const DEFS = {
+const DEFS: Opts = {
   x: 0,
   y: 0,
   width: 1,
@@ -9,19 +10,45 @@ const DEFS = {
   color: 'blue',
   isDynamic: true,
   gamepadIndex: null,
+  world: null,
 }
 
-export default class Player extends BaseEntity{
-  constructor(xOrOptions, y=DEFS.y, width=DEFS.width, height=DEFS.height, color=DEFS.color, world=null){
+interface Opts {
+  x: number
+  y: number
+  width: number
+  height: number
+  color: string | CanvasGradient | CanvasPattern
+  isDynamic: boolean
+  gamepadIndex?: number | null
+  world: any
+}
+
+export default class Player extends BaseEntity {
+  public width: number
+  public height: number
+  public color: string | CanvasGradient | CanvasPattern
+  public startColor: string | CanvasGradient | CanvasPattern
+  public gamepadIndex?: number | null
+  public body: any
+  public movementListener?: InputEventListener
+  public boostCharge: number
+  public boosting: boolean
+  protected x: number
+  protected y: number
+  private isDynamic: boolean
+
+  constructor(xOrOptions: number | object, y = DEFS.y, width = DEFS.width,
+              height = DEFS.height, color = DEFS.color, world: any = null) {
     super(true, -1)
-    if(typeof xOrOptions == 'object'){
-      let opts = {...DEFS, ...xOrOptions}
+    if(typeof xOrOptions === 'object'){
+      const opts: Opts = {...DEFS, ...xOrOptions}
       this.x = opts.x
       this.y = opts.y
       this.width = opts.width
       this.height = opts.height
       this.isDynamic = opts.isDynamic
-      this.color = opts.color
+      this.color = this.startColor = opts.color
       this.gamepadIndex = opts.gamepadIndex
       world = opts.world
     } else {
@@ -30,48 +57,47 @@ export default class Player extends BaseEntity{
       this.width = width
       this.height = height
       this.isDynamic = true
-      this.color = color
+      this.color = this.startColor = color
     }
+    this.boostCharge = 0
+    this.boosting = false
     if(world == null){
-      throw 'Player needs a world for init.'
+      throw new Error('Player needs a world for init.')
     }
     this.createB2D(world)
   }
 
-  createB2D(world){
-    var bd = new Box2D.b2BodyDef()
+  public createB2D(world: any){
+    const bd = new Box2D.b2BodyDef()
     if(this.isDynamic){
       bd.set_type(Box2D.b2_dynamicBody)
     }
     bd.set_position(new Box2D.b2Vec2(this.x, this.y))
     this.body = world.CreateBody(bd)
 
-    var shape = new Box2D.b2PolygonShape()
+    const shape = new Box2D.b2PolygonShape()
     shape.SetAsBox(this.width / 2, this.height / 2)
-    this.fixture = this.body.CreateFixture(shape, 0.0)
-    this.fixture.SetDensity(10.0)
+    const fixture = this.body.CreateFixture(shape, 0.0)
+    fixture.SetDensity(10.0)
     this.body.ResetMassData()
   }
 
-  getPosition(easyRead){
-    var pos
-
-    this.pos = this.body.GetPosition()
+  public getPosition(easyRead: boolean) {
+    let pos = this.body.GetPosition()
 
     if(easyRead){
       pos = {
-        x:this.pos.get_x(),
-        y:this.pos.get_y()
+        x: pos.get_x(),
+        y: pos.get_y(),
       }
     } else {
-      pos = this.pos
+      pos = pos
     }
     return pos
   }
 
-  draw(ctx){
-
-    let pos = this.getPosition(true)
+  public draw(ctx: CanvasRenderingContext2D){
+    const pos = this.getPosition(true)
     ctx.save()
     ctx.translate(pos.x, pos.y)
     ctx.rotate(this.body.GetAngle())

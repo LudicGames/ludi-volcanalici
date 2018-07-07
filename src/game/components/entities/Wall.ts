@@ -2,7 +2,15 @@ import {Box2D} from 'ludic-box2d'
 import {BaseEntity} from 'ein'
 
 export default class Wall extends BaseEntity {
-  constructor(width, height, world, color='orange', padding=0, active=true, priority=-1){
+  public width: number
+  public height: number
+  public world: any
+  public color: string
+  public padding: number
+  public size: number
+
+  constructor(width: number, height: number, world: any, color: string= 'orange',
+              padding: number= 0, active: boolean= true, priority: number= -1){
     super(active, priority)
     this.width = width
     this.height = height
@@ -13,66 +21,86 @@ export default class Wall extends BaseEntity {
     this.createB2D(world)
   }
 
-  createB2D(world){
+  public createB2D(world: any){
     // Top
-    let top_bd = new Box2D.b2BodyDef()
-    top_bd.set_position(new Box2D.b2Vec2(0, (this.height / 2) - (this.padding + this.size / 2)))
-    let top_body = world.CreateBody(top_bd)
+    const topBd = new Box2D.b2BodyDef()
+    topBd.set_position(new Box2D.b2Vec2(0, (this.height / 2) - (this.padding + this.size / 2)))
+    const topBody = world.CreateBody(topBd)
 
-    let top_shape = new Box2D.b2PolygonShape()
-    top_shape.SetAsBox(this.width / 2, this.size / 2)
-    let top_fixture = top_body.CreateFixture(top_shape, 0.0)
-    top_fixture.SetDensity(1.0)
-    top_body.ResetMassData()
+    const topShape = new Box2D.b2PolygonShape()
+    topShape.SetAsBox(this.width / 2, this.size / 2)
+    const topFixture = topBody.CreateFixture(topShape, 0.0)
+    topFixture.SetDensity(1.0)
+    topBody.ResetMassData()
 
     // Bottom
-    let bottom_bd = new Box2D.b2BodyDef()
-    bottom_bd.set_position(new Box2D.b2Vec2(0, (0 - this.height / 2) + (this.padding + this.size / 2)))
-    let bottom_body = world.CreateBody(bottom_bd)
+    const bottomBd = new Box2D.b2BodyDef()
+    bottomBd.set_position(new Box2D.b2Vec2(0, (0 - this.height / 2) + (this.padding + this.size / 2)))
+    const bottomBody = world.CreateBody(bottomBd)
 
-    let bottom_shape = new Box2D.b2PolygonShape()
-    bottom_shape.SetAsBox(this.width / 2, this.size / 2)
-    let bottom_fixture = bottom_body.CreateFixture(bottom_shape, 0.0)
-    bottom_fixture.SetDensity(1.0)
-    bottom_body.ResetMassData()
+    const bottomShape = new Box2D.b2PolygonShape()
+    bottomShape.SetAsBox(this.width / 2, this.size / 2)
+    const bottomFixture = bottomBody.CreateFixture(bottomShape, 0.0)
+    bottomFixture.SetDensity(1.0)
+    bottomBody.ResetMassData()
 
     // Left
-    let left_bd = new Box2D.b2BodyDef()
-    left_bd.set_position(new Box2D.b2Vec2(-this.width / 2 + (this.padding + this.size / 2), 0 ))
-    let left_body = world.CreateBody(left_bd)
+    const leftBd = new Box2D.b2BodyDef()
+    leftBd.set_position(new Box2D.b2Vec2(-this.width / 2 + (this.padding + this.size / 2), 0 ))
+    const leftBody = world.CreateBody(leftBd)
 
-    let left_shape = new Box2D.b2PolygonShape()
-    left_shape.SetAsBox(this.size / 2, this.height / 2)
-    let left_fixture = left_body.CreateFixture(left_shape, 0.0)
-    left_fixture.SetDensity(1.0)
-    left_body.ResetMassData()
+    const leftShape = new Box2D.b2PolygonShape()
+    leftShape.SetAsBox(this.size / 2, this.height / 2)
+    const leftFixture = leftBody.CreateFixture(leftShape, 0.0)
+    leftFixture.SetDensity(1.0)
+    leftBody.ResetMassData()
 
     // Right
-    let right_bd = new Box2D.b2BodyDef()
-    right_bd.set_position(new Box2D.b2Vec2(this.width / 2 - (this.size / 2 + this.padding), 0 ))
-    let right_body = world.CreateBody(right_bd)
+    const rightBd = new Box2D.b2BodyDef()
+    rightBd.set_position(new Box2D.b2Vec2(this.width / 2 - (this.size / 2 + this.padding), 0 ))
+    const rightBody = world.CreateBody(rightBd)
 
-    let right_shape = new Box2D.b2PolygonShape()
-    right_shape.SetAsBox(this.size / 2, this.height / 2)
-    let right_fixture = right_body.CreateFixture(right_shape, 0.0)
-    right_fixture.SetDensity(1.0)
-    right_body.ResetMassData()
+    const rightShape = new Box2D.b2PolygonShape()
+    rightShape.SetAsBox(this.size / 2, this.height / 2)
+    const rightFixture = rightBody.CreateFixture(rightShape, 0.0)
+    rightFixture.SetDensity(1.0)
+    rightBody.ResetMassData()
 
   }
 
-  draw(ctx){
+  public draw(ctx: CanvasRenderingContext2D){
     // Top
     ctx.fillStyle = this.color
-    ctx.fillRect(-this.width / 2 + this.padding,  this.height / 2 - (this.size + this.padding), this.width - this.padding * 2, this.size)
+    ctx.fillRect(
+      -this.width / 2 + this.padding,
+      this.height / 2 - (this.size + this.padding),
+      this.width - this.padding * 2,
+      this.size,
+    )
 
     // Bottom
-    ctx.fillRect(-this.width / 2 + this.padding,  -this.height / 2 + this.padding, this.width - this.padding * 2, this.size)
+    ctx.fillRect(
+      -this.width / 2 + this.padding,
+      -this.height / 2 + this.padding,
+      this.width - this.padding * 2,
+      this.size,
+    )
 
     // left
-    ctx.fillRect(-this.width / 2 + this.padding,  -this.height / 2 + this.padding, this.size, this.height - (this.padding * 2))
+    ctx.fillRect(
+      -this.width / 2 + this.padding,
+      -this.height / 2 + this.padding,
+      this.size,
+      this.height - (this.padding * 2),
+    )
 
     // right
-    ctx.fillRect(this.width / 2 - (this.size + this.padding),  -this.height / 2 + this.padding, this.size, this.height - (this.padding * 2))
+    ctx.fillRect(
+      this.width / 2 - (this.size + this.padding),
+      -this.height / 2 + this.padding,
+      this.size,
+      this.height - (this.padding * 2),
+    )
 
   }
 }
