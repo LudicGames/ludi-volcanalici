@@ -77,8 +77,16 @@ export default class Player extends BaseEntity {
 
     const shape = new Box2D.b2PolygonShape()
     shape.SetAsBox(this.width / 2, this.height / 2)
-    const fixture = this.body.CreateFixture(shape, 0.0)
-    fixture.SetDensity(10.0)
+    this.fixture = this.body.CreateFixture(shape, 0.0)
+    this.fixture.SetDensity(0.0)
+
+
+    // var md = new Box2D.b2MassData()
+    // md.set_mass(0.0)
+    // md.set_center(new Box2D.b2Vec2(0,0))
+    // md.set_I(0)
+
+    // this.body.SetMassData(md)
     this.body.ResetMassData()
   }
 
