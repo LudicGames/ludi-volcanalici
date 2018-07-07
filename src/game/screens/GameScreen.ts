@@ -7,11 +7,13 @@ import Timer from '$ui/Timer'
 
 // Entities
 import Player from '$entities/Player'
-import Walls from '$entities/Wall'
+import Platform from '$entities/Platform'
+import Walls from '$entities/Walls'
 
 // Systems
 import RenderSystem from '$systems/Render'
 import MovementSystem from '$systems/Movement'
+import ContactSystem from '$systems/Contact'
 
 export default class GameScreen extends Screen {
   public camera: Camera
@@ -69,16 +71,30 @@ export default class GameScreen extends Screen {
     // Movement
     this.movementSystem = new MovementSystem(this.$app)
     this.engine.addSystem(this.movementSystem)
+
+    // Contact
+    // this.contactSystem = new ContactSystem(this.world)
+    // this.engine.addSystem(this.contactSystem)
+
   }
 
   public initEntities() {
     // Walls
-    this.walls = new Walls(this.camera.width / this.camera.ptm, this.camera.height/ this.camera.ptm, this.world, 'orange', -1)
+    this.walls = new Walls(this.camera.width / this.camera.ptm, this.camera.height/ this.camera.ptm, this.world, 'orange', 0)
     this.engine.addEntity(this.walls)
+
+    // Platforms
+    this.platform1 = new Platform(-8, -8.5, 9, .5, this.world, 'orange')
+    this.platform2 = new Platform(8, -8.5, 9, .5, this.world, 'orange')
+    this.platform3 = new Platform(0, -4.5, 9, .5, this.world, 'orange')
+
+    this.engine.addEntity(this.platform1)
+    this.engine.addEntity(this.platform2)
+    this.engine.addEntity(this.platform3)
 
     // Players
     this.players.forEach((player, index)=>{
-      player.entity = new Player({x: 0, y: 0, width: 1, height: 3, color: "green", world: this.world, gamepadIndex: index})
+      player.entity = new Player({x: 0, y: -9, width: .8, height: 2.5, color: "green", world: this.world, gamepadIndex: index})
       this.engine.addEntity(player.entity)
     })
   }

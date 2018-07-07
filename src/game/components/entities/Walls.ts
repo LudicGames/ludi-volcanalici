@@ -1,7 +1,7 @@
 import {Box2D} from 'ludic-box2d'
 import {BaseEntity} from 'ein'
 
-export default class Wall extends BaseEntity {
+export default class Walls extends BaseEntity {
   public width: number
   public height: number
   public world: any
