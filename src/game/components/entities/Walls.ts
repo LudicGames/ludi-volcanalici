@@ -1,7 +1,8 @@
 import {Box2D} from 'ludic-box2d'
 import {BaseEntity} from 'ein'
+import DrawableEntity from '$entities/DrawableEntity'
 
-export default class Walls extends BaseEntity {
+export default class Walls extends BaseEntity implements DrawableEntity {
   public width: number
   public height: number
   public world: any

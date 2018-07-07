@@ -11,7 +11,7 @@ interface EntityListenerMap {
   id: number
   listener: InputEventListener
 }
-export default class MovementSystem extends BaseSystem {
+export default class MovementSystem extends BaseSystem<Player> {
   public entityQuery: object
   private entityListenerMap: {[key: string]: EntityListenerMap}
   private $app: LudicApp

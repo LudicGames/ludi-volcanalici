@@ -1,6 +1,7 @@
 import {BaseEntity} from 'ein'
 import {Box2D} from 'ludic-box2d'
-import { InputEventListener } from '../../../../node_modules/@ludic/ludic';
+import { InputEventListener } from 'ludic'
+import DrawableEntity from '$entities/DrawableEntity'
 
 const DEFS: Opts = {
   x: 0,
@@ -24,7 +25,7 @@ interface Opts {
   world: any
 }
 
-export default class Player extends BaseEntity {
+export default class Player extends BaseEntity implements DrawableEntity {
   public width: number
   public height: number
   public color: string | CanvasGradient | CanvasPattern
@@ -77,9 +78,9 @@ export default class Player extends BaseEntity {
 
     const shape = new Box2D.b2PolygonShape()
     shape.SetAsBox(this.width / 2, this.height / 2)
-    this.fixture = this.body.CreateFixture(shape, 0.0)
-    this.fixture.SetUserData(1)
-    this.fixture.SetDensity(0.0)
+    const fixture = this.body.CreateFixture(shape, 0.0)
+    fixture.SetUserData(1)
+    fixture.SetDensity(0.0)
 
 
     // var md = new Box2D.b2MassData()

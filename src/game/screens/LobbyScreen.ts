@@ -1,15 +1,18 @@
-import {Screen} from 'ludic'
+import {Screen, ScreenManager, LudicApp} from 'ludic'
 import {World} from 'ludic-box2d'
 
 import LobbyScreenUI from '$ui/LobbyScreen'
 
 export default class LobbyScreen extends Screen {
-  constructor(teamsEnabled) {
+  private teamsEnabled: boolean
+  private lobbyScreen!: LobbyScreenUI
+  
+  constructor(teamsEnabled: boolean) {
     super()
     this.teamsEnabled = teamsEnabled
   }
 
-  public onAddedToManager(manager) {
+  public onAddedToManager(manager: ScreenManager) {
     this.lobbyScreen = this.$mapMethods(new LobbyScreenUI({teamsEnabled: this.teamsEnabled}), {
       onReady: 'onReady',
     })
@@ -17,7 +20,7 @@ export default class LobbyScreen extends Screen {
     // this.$app.$ui.$refs.lobby = this.lobbyScreen
   }
 
-  public onReady([component, data]) {
+  public onReady([component, data]: [LobbyScreenUI, {players: Array<{ready: boolean}>}]) {
     data.players = data.players.filter((p) => p.ready)
     this.finish(data)
   }
@@ -25,8 +28,7 @@ export default class LobbyScreen extends Screen {
     delete this.$app.$ui.$refs.lobby
   }
 
-  public update(time, delta) {
-    let ctx = this.$app.$context
+  public update(delta: number) {
     this.$app.$input.update()
     this.$app.$canvas.clear('black')
   }

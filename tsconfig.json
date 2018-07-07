@@ -16,9 +16,13 @@
     ],
     "paths": {
       "game/*": ["src/game/*"],
+      "$ui/*": ["src/game/components/ui/*"],
+      "$entities/*": ["src/game/components/entities/*"],
+      "$systems/*": ["src/game/components/systems/*"],
       "@/*": [
         "src/*"
       ],
+
       
       "ludic": ["node_modules/@ludic/ludic"],
       "ludic-vue": ["node_modules/@ludic/ludic-vue"],

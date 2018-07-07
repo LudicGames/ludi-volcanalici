@@ -14,7 +14,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import Game from 'game/game'
 
 @Component
-export default class Home extends Component {
+export default class Home extends Vue {
 
 }
 
