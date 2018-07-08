@@ -73,8 +73,8 @@ export default class GameScreen extends Screen {
     this.engine.addSystem(this.movementSystem)
 
     // Contact
-    // this.contactSystem = new ContactSystem(this.world)
-    // this.engine.addSystem(this.contactSystem)
+    this.contactSystem = new ContactSystem(this.world)
+    this.engine.addSystem(this.contactSystem)
 
   }
 

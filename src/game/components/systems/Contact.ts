@@ -5,7 +5,7 @@ const DEFAULTS = {
   active: true,
   priority: 1,
   entityQuery: {
-    props: ['onBeginContact']
+    props: ['shouldCollide']
   }
 }
 
@@ -14,45 +14,47 @@ export default class ContactSystem extends BaseSystem {
     cfg = Object.assign(DEFAULTS, cfg)
     super(cfg)
     this.world = world
-    this.initContactListener()
+    this.initContactFilter()
   }
 
-  initContactListener(){
-    let listener = new Box2D.JSContactListener()
+  public initContactFilter(){
+    let filter = new Box2D.JSContactFilter()
+    filter.ShouldCollide = (a, b) => {
+      a = Box2D.wrapPointer(a, Box2D.b2Fixture)
+      b = Box2D.wrapPointer(b, Box2D.b2Fixture)
 
-    listener.EndContact = contactPtr => {
-      // let contact = Box2D.wrapPointer(contactPtr, Box2D.b2Contact)
-      // let a = contact.GetFixtureA()
-      // let b = contact.GetFixtureB()
+      // Player is 1
+      // Platforms are 2
+      // Everything else is 0
+      if(a.GetUserData() == 0 || b.GetUserData() == 0){
+        return true
+      }
 
-      // this.entities.forEach(entity => {
-      //   if(entity.fixture == a){
-      //     entity.onEndContact(contact, a, b)
-      //   }
-      //   if(entity.fixture == b){
-      //     entity.onEndContact(contact, b, a)
-      //   }
-      // })
-    }
-
-    // Init these, or else B2D will explode
-    listener.BeginContact = (contactPtr) => {
-      let contact = Box2D.wrapPointer(contactPtr, Box2D.b2Contact)
-      let a = contact.GetFixtureA()
-      let b = contact.GetFixtureB()
-
+      let should_collide = null
       this.entities.forEach(entity => {
         if(entity.fixture == a){
-          entity.onBeginContact(contact, a, b)
+          let tmp = entity.shouldCollide(a, b)
+          if(should_collide === null){
+            should_collide = tmp
+          }
         }
         if(entity.fixture == b){
-          entity.onBeginContact(contact, b, a)
+          let tmp = entity.shouldCollide(b, a)
+          if(should_collide === null){
+            should_collide = tmp
+          }
         }
       })
+
+      if(should_collide != null){
+        return should_collide
+      }
+      if(a.GetUserData() != 0 && b.GetUserData() != 0){
+        return false
+      }
+      return true
     }
-    listener.PreSolve = function (contactPtr, manifoldPtr) {}
-    listener.PostSolve = function (contactPtr, contactImpulsePtr) {}
-    this.world.SetContactListener(listener)
+    this.world.SetContactFilter(filter)
   }
 
   onEntityAdded(entity){

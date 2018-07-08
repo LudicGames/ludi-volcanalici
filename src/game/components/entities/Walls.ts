@@ -101,6 +101,5 @@ export default class Walls extends BaseEntity {
       this.size,
       this.height - (this.padding * 2),
     )
-
   }
 }

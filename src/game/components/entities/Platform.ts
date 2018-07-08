@@ -23,7 +23,6 @@ export default class Platform extends BaseEntity {
       throw new Error('Player needs a world for init.')
     }
     this.createB2D()
-    // this.initContactFilter()
   }
 
   public createB2D(){
@@ -35,77 +34,19 @@ export default class Platform extends BaseEntity {
     shape.SetAsBox(this.width / 2, this.height / 2)
     this.fixture = this.body.CreateFixture(shape, 0.0)
     this.fixture.SetDensity(1.0)
+    this.fixture.SetUserData(2)
     this.body.ResetMassData()
   }
 
-
-  public initContactFilter(){
-    let filter = new Box2D.JSContactFilter()
-    filter.ShouldCollide = (a, b) => {
-      if(a == this.fixture.a){
-		    let my_position = a.GetBody().GetPosition()
-        let player_position = b.GetBody().GetPosition()
-      } else if(b == this.fixture.a){
-		    let my_position = b.GetBody().GetPosition()
-        let player_position = a.GetBody().GetPosition()
-      } else {
-        return true
-      }
-
-      if(player_position.get_y() < my_position.get_y()){
-        console.log("false")
-        return false
-      } else {
-        console.log("true")
-        return true
-      }
+  public shouldCollide(me, them){
+    let my_pos = me.GetBody().GetPosition()
+    let player_pos = them.GetBody().GetPosition()
+    if(player_pos.get_y() < my_pos.get_y()){
+      return false
+    } else {
+      return true
     }
-
-    this.world.SetContactFilter(filter)
-
-
-
   }
-
-  public onBeginContact(contact, me, them){
-    let platformBody = me.GetBody()
-    let otherBody = them.GetBody()
-
-    let vel = otherBody.GetLinearVelocity()
-    let numPoints = contact.GetManifold().get_pointCount()
-
-    if(vel.get_y() > 0){
-      // contact.SetEnabled(false)
-    }
-    contact.SetEnabled(false)
-    // console.log(numPoints)
-
-    // let worldManifold = new Box2D.b2Manifold()
-    // contact.GetWorldManifold(worldManifold)
-
-
-
-
-
-
-    // //check if contact points are moving downward
-    // for (int i = 0; i < numPoints; i++) {
-    //   b2Vec2 pointVel =
-    //     otherBody->GetLinearVelocityFromWorldPoint( worldManifold.points[i] );
-    //   if ( pointVel.y < 0 )
-    //     return;//point is moving down, leave contact solid and exit
-    // }
-
-    // //no points are moving downward, contact should not be solid
-    // contact->SetEnabled(false);
-
-  }
-
-  public onEndContact(contact, me, them){
-    // contact.SetEnabled(true)
-    // console.log("platform contact")
-  }
-
 
   public draw(ctx: CanvasRenderingContext2D){
     ctx.save()

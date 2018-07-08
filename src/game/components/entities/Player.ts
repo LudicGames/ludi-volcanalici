@@ -78,6 +78,7 @@ export default class Player extends BaseEntity {
     const shape = new Box2D.b2PolygonShape()
     shape.SetAsBox(this.width / 2, this.height / 2)
     this.fixture = this.body.CreateFixture(shape, 0.0)
+    this.fixture.SetUserData(1)
     this.fixture.SetDensity(0.0)
 
 
@@ -114,4 +115,5 @@ export default class Player extends BaseEntity {
     ctx.fillRect(pos.x - this.width / 2, pos.y - this.height / 2, this.width, this.height)
     ctx.restore()
   }
+
 }
