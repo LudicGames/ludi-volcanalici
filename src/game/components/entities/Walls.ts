@@ -27,6 +27,7 @@ export default class Walls extends BaseEntity implements DrawableEntity {
     const topBd = new Box2D.b2BodyDef()
     topBd.set_position(new Box2D.b2Vec2(0, (this.height / 2) - (this.padding + this.size / 2)))
     const topBody = world.CreateBody(topBd)
+    topBody.SetUserData({entity: this, position: 'top'})
 
     const topShape = new Box2D.b2PolygonShape()
     topShape.SetAsBox(this.width / 2, this.size / 2)
@@ -38,6 +39,7 @@ export default class Walls extends BaseEntity implements DrawableEntity {
     const bottomBd = new Box2D.b2BodyDef()
     bottomBd.set_position(new Box2D.b2Vec2(0, (0 - this.height / 2) + (this.padding + this.size / 2)))
     const bottomBody = world.CreateBody(bottomBd)
+    bottomBody.SetUserData({entity: this, position: 'bottom'})
 
     const bottomShape = new Box2D.b2PolygonShape()
     bottomShape.SetAsBox(this.width / 2, this.size / 2)
@@ -49,6 +51,7 @@ export default class Walls extends BaseEntity implements DrawableEntity {
     const leftBd = new Box2D.b2BodyDef()
     leftBd.set_position(new Box2D.b2Vec2(-this.width / 2 + (this.padding + this.size / 2), 0 ))
     const leftBody = world.CreateBody(leftBd)
+    leftBody.SetUserData({entity: this, position: 'left'})
 
     const leftShape = new Box2D.b2PolygonShape()
     leftShape.SetAsBox(this.size / 2, this.height / 2)
@@ -60,6 +63,7 @@ export default class Walls extends BaseEntity implements DrawableEntity {
     const rightBd = new Box2D.b2BodyDef()
     rightBd.set_position(new Box2D.b2Vec2(this.width / 2 - (this.size / 2 + this.padding), 0 ))
     const rightBody = world.CreateBody(rightBd)
+    rightBody.SetUserData({entity: this, position: 'right'})
 
     const rightShape = new Box2D.b2PolygonShape()
     rightShape.SetAsBox(this.size / 2, this.height / 2)

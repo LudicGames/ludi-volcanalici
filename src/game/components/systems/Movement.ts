@@ -2,7 +2,7 @@ import {BaseSystem, BaseEntity } from 'ein'
 // import Ludic from 'Ludic'
 import {Box2D} from 'ludic-box2d'
 import { LudicApp, InputEventListenerOptions, InputEventListener } from 'ludic'
-import Player from 'game/components/entities/Player'
+import Player, { PlayerDirection } from 'game/components/entities/Player'
 
 const DEGTORAD = Math.PI / 180
 
@@ -51,22 +51,23 @@ export default class MovementSystem extends BaseSystem<Player> {
   private createListener(entity: Player){
     const listenerConfig: InputEventListenerOptions = {
       keyConfig: {
-        'w.once': 'up',
+        // 'w.once': 'up',
         'a.once': 'left',
-        's.once': 'down',
+        // 's.once': 'down',
         'd.once': 'right',
-        'q.once': 'l1',
-        'e.once': 'r1',
+        // 'q.once': 'l1',
+        // 'e.once': 'r1',
+        'space.once': 'cross',
       },
       methods: {
-        left: this.moveEntity('x', entity, -this.maxVX, 'd'),
-        right: this.moveEntity('x', entity, this.maxVX, 'a'),
-        up: this.moveEntity('y', entity, this.maxVY, 's'),
-        down: this.moveEntity('y', entity, -this.maxVY, 'w'),
-        r1: this.rotateEntity(entity, true),
+        left: this.moveEntity(entity, 'left'),
+        right: this.moveEntity(entity, 'right'),
+        // up: this.moveEntity('y', entity, this.maxVY, 's'),
+        // down: this.moveEntity('y', entity, -this.maxVY, 'w'),
+        // r1: this.rotateEntity(entity, true),
 
-        l1: this.rotateEntity(entity, false),
-        cross: this.boost(entity),
+        // l1: this.rotateEntity(entity, false),
+        cross: this.jump(entity),
 
         rightStick: this.moveStick(entity, true),
         leftStick: this.moveStick(entity, false),
@@ -86,74 +87,48 @@ export default class MovementSystem extends BaseSystem<Player> {
     entity.movementListener = this.entityListenerMap[entity._id].listener
   }
 
-  private moveEntity(axis: string, entity: Player, max: number, oddKey: string){
+  private moveEntity(entity: Player, dir: string){
     const vec = new Box2D.b2Vec2(0,0)
-    const dirs: {[key: string]: {
-      old: string,
-      desired: string,
-    }} = {
-      y: {
-        old: 'x',
-        desired: 'y',
-      },
-      x: {
-        old: 'y',
-        desired: 'x',
-      },
-    }
-    const dir = dirs[axis]
-
+    const totalMoveCycles = 4
+    let moveCycles = totalMoveCycles
     return (keyDown: boolean, e: any) => {
-      let desiredVel
       if(keyDown){
-        desiredVel = max
-        // this.running = true
-      } else if(e.type === 'gamepadButtonEvent' || !e.allKeys[oddKey]) {
-        desiredVel = 0
-        // this.running = false
-      } else if(e.allKeys[oddKey]) {
-        desiredVel = -max
+        entity.movingDirection = dir === 'left' ? PlayerDirection.LEFT : PlayerDirection.RIGHT
+      } else {
+        moveCycles = totalMoveCycles
+        entity.movingDirection = PlayerDirection.NONE
       }
-      // let vel = entity.body.GetLinearVelocity()
-      // let velChange = desiredVel - vel.get_x()
-      // let impulse = entity.body.GetMass() * velChange
-      // console.log('move entity right', desiredVel, vel.get_x(), velChange, entity.body.GetMass(), impulse)
-      // entity.body.ApplyForce(new Box2D.b2Vec2(0, impulse), entity.body.GetWorldCenter())
-      const oldVel = entity.body.GetLinearVelocity()
-      vec[`set_${dir.old}`](oldVel[`get_${dir.old}`]())
-      vec[`set_${dir.desired}`](desiredVel)
-      entity.body.SetLinearVelocity(vec)
+
+      const vel = entity.body.GetLinearVelocity()
+      const desiredVel = entity.movingDirection * entity.moveMultiplier
+      const velChange = desiredVel - vel.x
+      vec.x = entity.body.GetMass() * velChange / e.delta // f = mv/t
+      entity.body.ApplyForce(vec, entity.body.GetWorldCenter(), true)
     }
   }
 
-  private boost(entity: Player){
-    entity.boostCharge = 0
-    entity.startColor = entity.color
+  private jump(entity: Player){
+    const vec = new Box2D.b2Vec2(0,0)
+    const totalJumpCycles = 7
+    let jumpCycles = totalJumpCycles
     return (keyDown: boolean, e: any) => {
       if(keyDown){
-        entity.boostCharge++
-        entity.color = darken(entity.color, -.02)
+        if(!entity.airborne){
+          entity.jumping = true
+        }
       } else {
-        entity.color = entity.startColor
-        const magnitude = 100 // entity.body.GetMass() * entity.boostCharge
-        const vel = entity.body.GetLinearVelocity()
+        // TODO: remove this when contact listeners are in place
+        entity.jumping = false
+        jumpCycles = totalJumpCycles
+      }
 
-        // console.log(vel.get_x())
-        // console.log(vel.get_y())
-
-        let x = vel.get_x() * 10
-        let y = vel.get_y() * 10
-
-        x = 0
-        y = 400
-        // console.log(x)
-        // console.log(y)
-
-        entity.boosting = true
-
-        // entity.body.ApplyLinearImpulse(new Box2D.b2Vec2(x, y), entity.body.GetWorldCenter())
-        entity.body.ApplyLinearImpulse(new Box2D.b2Vec2(x, y), entity.body.GetWorldCenter())
-        entity.boostCharge = 0
+      if(entity.jumping){
+        if(jumpCycles >= 0){
+          // spread this over total time steps
+          vec.y = ((entity.body.GetMass() * entity.jumpMultiplier) / e.delta) / totalJumpCycles
+          entity.body.ApplyForce(vec, entity.body.GetWorldCenter(), true)
+          jumpCycles--
+        }
       }
     }
   }
@@ -189,7 +164,7 @@ export default class MovementSystem extends BaseSystem<Player> {
 
           // let pos = entity.body.GetPosition()
           const bodyAngle = entity.body.GetAngle()
-          const desiredAngle = Math.atan2(axisPoint.get_y(), axisPoint.get_x())
+          const desiredAngle = Math.atan2(axisPoint.y, axisPoint.x)
 
           const nextAngle = bodyAngle + entity.body.GetAngularVelocity() / 60.0
           let totalRotation = desiredAngle - nextAngle

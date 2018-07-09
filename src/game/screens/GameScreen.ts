@@ -80,8 +80,8 @@ export default class GameScreen extends Screen {
     this.engine.addSystem(this.renderSystem)
 
     // Input
-    this.inputSystem = new BaseSystem(true, 1, () => {
-      this.$app.$input.update()
+    this.inputSystem = new BaseSystem(true, 1, (delta) => {
+      this.$app.$input.update(delta)
     })
     this.engine.addSystem(this.inputSystem)
 

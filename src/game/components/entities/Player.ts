@@ -25,6 +25,12 @@ interface Opts {
   world: any
 }
 
+export enum PlayerDirection {
+  LEFT = -1,
+  NONE = 0,
+  RIGHT = 1,
+}
+
 export default class Player extends BaseEntity implements DrawableEntity {
   public width: number
   public height: number
@@ -33,8 +39,14 @@ export default class Player extends BaseEntity implements DrawableEntity {
   public gamepadIndex?: number | null
   public body: any
   public movementListener?: InputEventListener
-  public boostCharge: number
-  public boosting: boolean
+  public boostCharge: number = 0
+  public boosting: boolean = false
+  public jumping: boolean = false
+  public jumpValue: number = 27
+  public moveValue: number = 20
+  public airborneMoveValue: number = 15
+  public movingDirection: PlayerDirection = PlayerDirection.NONE
+  public airborne: boolean = false
   protected x: number
   protected y: number
   private isDynamic: boolean
@@ -60,8 +72,6 @@ export default class Player extends BaseEntity implements DrawableEntity {
       this.isDynamic = true
       this.color = this.startColor = color
     }
-    this.boostCharge = 0
-    this.boosting = false
     if(world == null){
       throw new Error('Player needs a world for init.')
     }
@@ -75,12 +85,14 @@ export default class Player extends BaseEntity implements DrawableEntity {
     }
     bd.set_position(new Box2D.b2Vec2(this.x, this.y))
     this.body = world.CreateBody(bd)
+    this.body.SetFixedRotation(true)
 
     const shape = new Box2D.b2PolygonShape()
     shape.SetAsBox(this.width / 2, this.height / 2)
     const fixture = this.body.CreateFixture(shape, 0.0)
     fixture.SetUserData(1)
-    fixture.SetDensity(0.0)
+    fixture.SetDensity(1.5)
+    this.body.SetUserData({entity: this})
 
 
     // var md = new Box2D.b2MassData()
@@ -90,24 +102,26 @@ export default class Player extends BaseEntity implements DrawableEntity {
 
     // this.body.SetMassData(md)
     this.body.ResetMassData()
+
+    // create a contact listener for contact with platforms 
+    this.platformContactListener = world.newBodyContactListener(this.body, this.onPlatformContact.bind(this))
+    world.registerBodyContactListener(this.platformContactListener)
   }
 
-  public getPosition(easyRead: boolean) {
-    let pos = this.body.GetPosition()
-
-    if(easyRead){
-      pos = {
-        x: pos.get_x(),
-        y: pos.get_y(),
-      }
-    } else {
-      pos = pos
-    }
-    return pos
+  get moveMultiplier(){
+    return this.airborne ? this.airborneMoveValue : this.moveValue
   }
 
+  get jumpMultiplier(){
+    return this.jumpValue
+  }
+  
+  public getPosition() {
+    return this.body.GetPosition()
+  }
+  
   public draw(ctx: CanvasRenderingContext2D){
-    const pos = this.getPosition(true)
+    const pos = this.getPosition()
     ctx.save()
     ctx.translate(pos.x, pos.y)
     ctx.rotate(this.body.GetAngle())
@@ -116,5 +130,14 @@ export default class Player extends BaseEntity implements DrawableEntity {
     ctx.fillRect(pos.x - this.width / 2, pos.y - this.height / 2, this.width, this.height)
     ctx.restore()
   }
-
+  
+  private onPlatformContact(begin, contactBody){
+    const {entity, position} = contactBody.GetUserData()
+    if(entity.constructor.name === 'Platform'){
+      this.airborne = !begin
+    } else if(entity.constructor.name == 'Walls'){
+      this.airborne = position === 'bottom' ? !begin : this.airborne
+    }
+  }
+  
 }
