@@ -1,5 +1,5 @@
-import {BaseEntity} from 'ein'
-import {Box2D} from 'ludic-box2d'
+import { BaseEntity } from 'ein'
+import { Box2D, World } from 'ludic-box2d'
 import { InputEventListener } from 'ludic'
 import DrawableEntity from '$entities/DrawableEntity'
 
@@ -37,7 +37,7 @@ export default class Player extends BaseEntity implements DrawableEntity {
   public color: string | CanvasGradient | CanvasPattern
   public startColor: string | CanvasGradient | CanvasPattern
   public gamepadIndex?: number | null
-  public body: any
+  public body!: Box2D.b2Body
   public movementListener?: InputEventListener
   public boostCharge: number = 0
   public boosting: boolean = false
@@ -52,7 +52,7 @@ export default class Player extends BaseEntity implements DrawableEntity {
   private isDynamic: boolean
 
   constructor(xOrOptions: number | object, y = DEFS.y, width = DEFS.width,
-              height = DEFS.height, color = DEFS.color, world: any = null) {
+              height = DEFS.height, color = DEFS.color, world: World) {
     super(true, -1)
     if(typeof xOrOptions === 'object'){
       const opts: Opts = {...DEFS, ...xOrOptions}
@@ -78,12 +78,12 @@ export default class Player extends BaseEntity implements DrawableEntity {
     this.createB2D(world)
   }
 
-  public createB2D(world: any){
+  public createB2D(world: World){
     const bd = new Box2D.b2BodyDef()
     if(this.isDynamic){
-      bd.set_type(Box2D.b2_dynamicBody)
+      bd.type = Box2D.b2BodyType.dynamic
     }
-    bd.set_position(new Box2D.b2Vec2(this.x, this.y))
+    bd.position = new Box2D.b2Vec2(this.x, this.y)
     this.body = world.CreateBody(bd)
     this.body.SetFixedRotation(true)
 

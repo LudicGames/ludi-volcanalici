@@ -69,8 +69,8 @@ export default class MovementSystem extends BaseSystem<Player> {
         // l1: this.rotateEntity(entity, false),
         cross: this.jump(entity),
 
-        rightStick: this.moveStick(entity, true),
-        leftStick: this.moveStick(entity, false),
+        // rightStick: this.moveStick(entity, true),
+        // leftStick: this.moveStick(entity, false),
       },
     }
 
@@ -109,8 +109,6 @@ export default class MovementSystem extends BaseSystem<Player> {
 
   private jump(entity: Player){
     const vec = new Box2D.b2Vec2(0,0)
-    const totalJumpCycles = 7
-    let jumpCycles = totalJumpCycles
     return (keyDown: boolean, e: any) => {
       if(keyDown){
         if(!entity.airborne){
@@ -119,16 +117,11 @@ export default class MovementSystem extends BaseSystem<Player> {
       } else {
         // TODO: remove this when contact listeners are in place
         entity.jumping = false
-        jumpCycles = totalJumpCycles
       }
 
       if(entity.jumping){
-        if(jumpCycles >= 0){
-          // spread this over total time steps
-          vec.y = ((entity.body.GetMass() * entity.jumpMultiplier) / e.delta) / totalJumpCycles
-          entity.body.ApplyForce(vec, entity.body.GetWorldCenter(), true)
-          jumpCycles--
-        }
+        vec.y = entity.body.GetMass() * entity.jumpMultiplier
+        entity.body.ApplyLinearImpulse(vec, entity.body.GetWorldCenter(), true)
       }
     }
   }
@@ -145,69 +138,4 @@ export default class MovementSystem extends BaseSystem<Player> {
     }
   }
 
-  private moveStick(entity: Player, right: boolean){
-    const vec = new Box2D.b2Vec2(0,0)
-    const axisPoint = new Box2D.b2Vec2(0,0)
-    const dz = 0.12
-    return (x: number, y: number, e: any) => {
-      // -x:left, -y:up
-      if(right){
-
-        if(Math.abs(x) > dz || Math.abs(y) > dz){
-          if(Math.abs(x) > dz){
-            axisPoint.set_x(x)
-          }
-          if(Math.abs(y) > dz){
-            axisPoint.set_y(-y)
-          }
-
-
-          // let pos = entity.body.GetPosition()
-          const bodyAngle = entity.body.GetAngle()
-          const desiredAngle = Math.atan2(axisPoint.y, axisPoint.x)
-
-          const nextAngle = bodyAngle + entity.body.GetAngularVelocity() / 60.0
-          let totalRotation = desiredAngle - nextAngle
-          while ( totalRotation < -180 * DEGTORAD ) {totalRotation += 360 * DEGTORAD}
-          while ( totalRotation >  180 * DEGTORAD ) {totalRotation -= 360 * DEGTORAD}
-          const desiredAngularVelocity = totalRotation * 60
-          const impulse = entity.body.GetInertia() * desiredAngularVelocity
-          entity.body.ApplyAngularImpulse( impulse , true)
-        } else {
-          entity.body.SetAngularVelocity(0)
-        }
-      } else {
-        if(!e.axis.zeroed){
-          vec.set_x(x * this.maxVX)
-          vec.set_y(y * -this.maxVY)
-        } else {
-          vec.set_x(0)
-          vec.set_y(0)
-        }
-        entity.body.SetLinearVelocity(vec)
-      }
-    }
-  }
-}
-
-
-// TODO move this
-function darken(hex: string | CanvasGradient | CanvasPattern, lum: number) {
-  // validate hex string
-  hex = String(hex).replace(/[^0-9a-f]/gi, '')
-  if (hex.length < 6) {
-    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
-  }
-  lum = lum || 0
-
-  // convert to decimal and change luminosity
-  let rgb = '#'
-  let c
-  let i
-  for (i = 0; i < 3; i++) {
-    c = parseInt(hex.substr(i * 2,2), 16)
-    c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16)
-    rgb += ('00' + c).substr(c.length)
-  }
-  return rgb
 }
