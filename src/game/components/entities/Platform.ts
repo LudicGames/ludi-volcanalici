@@ -19,7 +19,7 @@ export default class Platform extends BaseEntity {
     this.y = y
 
     if(world == null){
-      throw new Error('Player needs a world for init.')
+      throw new Error('Platform needs a world for init.')
     }
     this.createB2D(world)
   }

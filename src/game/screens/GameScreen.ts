@@ -4,6 +4,7 @@ import {Engine, BaseSystem, BaseEntity} from 'ein'
 
 // Entities
 import Player from '$entities/Player'
+import Gun from '$entities/Gun'
 import Platform from '$entities/Platform'
 import Walls from '$entities/Walls'
 import DrawableEntity from '$entities/DrawableEntity'
@@ -12,6 +13,7 @@ import DrawableEntity from '$entities/DrawableEntity'
 import RenderSystem from '$systems/Render'
 import MovementSystem from '$systems/Movement'
 import ContactSystem from '$systems/Contact'
+import ShootSystem from '$systems/Shoot'
 
 interface PlayerObject {
   entity: Player
@@ -30,6 +32,8 @@ export default class GameScreen extends Screen {
   private inputSystem!: BaseSystem<BaseEntity>
   private renderSystem!: BaseSystem<BaseEntity & DrawableEntity>
   private movementSystem!: BaseSystem<Player>
+  private contactSystem!: BaseSystem<BaseEntity>
+  private shootSystem!: BaseSystem<Player>
 
   private walls!: Walls
   private platform1!: Platform
@@ -108,6 +112,10 @@ export default class GameScreen extends Screen {
     this.movementSystem = new MovementSystem(this.$app)
     this.engine.addSystem(this.movementSystem)
 
+    // Shoot
+    this.shootSystem = new ShootSystem(this.$app)
+    this.engine.addSystem(this.shootSystem)
+
     // Contact
     this.contactSystem = new ContactSystem(this.world)
     this.engine.addSystem(this.contactSystem)
@@ -131,7 +139,11 @@ export default class GameScreen extends Screen {
     // Players
     this.players.forEach((player, index) => {
       player.entity = new Player({x: 0, y: -9, width: .8, height: 2.5, color: 'green', world: this.world, gamepadIndex: index})
+      let gun = new Gun(this.world, 0, -9, 1, .2, 'red')
+      player.entity.grabGun(gun)
+
       this.engine.addEntity(player.entity)
+      this.engine.addEntity(gun)
     })
   }
 

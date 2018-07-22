@@ -79,6 +79,7 @@ export default class Player extends BaseEntity implements DrawableEntity {
     if(world == null){
       throw new Error('Player needs a world for init.')
     }
+    this.world = world
     this.createB2D(world)
   }
 
@@ -137,6 +138,30 @@ export default class Player extends BaseEntity implements DrawableEntity {
     ctx.fillStyle = this.color
     ctx.fillRect(pos.x - this.width / 2, pos.y - this.height / 2, this.width, this.height)
     ctx.restore()
+  }
+
+  public grabGun(gun: any){
+    this.guns.push(gun)
+    this.currentGun = gun
+    gun.owner = this
+
+    // Join the Player and Gun bodies
+    let jointDef = new Box2D.b2RevoluteJointDef()
+    let axis = new Box2D.b2Vec2(0.0, 1.0)
+    jointDef.Initialize(this.body, gun.body, gun.getPosition(), axis)
+    // jointDef.set_motorSpeed(10.0)
+    // jointDef.set_maxMotorTorque(20.0)
+    // jointDef.set_enableMotor(true)
+    this.world.CreateJoint(jointDef)
+  }
+
+  public dropGun(){
+    // TODO, remove joint from Player <-> Gun  bodies
+  }
+
+  public shoot(){
+    console.log("Player.shoot()")
+    this.currentGun.fire()
   }
   
   private onPlatformContact(begin: boolean, contact: Box2D.b2Contact){
