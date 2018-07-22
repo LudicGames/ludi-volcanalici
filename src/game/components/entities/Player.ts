@@ -14,12 +14,14 @@ const DEFS: Opts = {
   world: null,
 }
 
+type Color = string | CanvasGradient | CanvasPattern
+
 interface Opts {
   x: number
   y: number
   width: number
   height: number
-  color: string | CanvasGradient | CanvasPattern
+  color: Color
   isDynamic: boolean
   gamepadIndex?: number | null
   world: any
@@ -34,8 +36,8 @@ export enum PlayerDirection {
 export default class Player extends BaseEntity implements DrawableEntity {
   public width: number
   public height: number
-  public color: string | CanvasGradient | CanvasPattern
-  public startColor: string | CanvasGradient | CanvasPattern
+  public color: Color
+  public startColor: Color
   public gamepadIndex?: number | null
   public body!: Box2D.b2Body
   public movementListener?: InputEventListener
@@ -47,6 +49,8 @@ export default class Player extends BaseEntity implements DrawableEntity {
   public airborneMoveValue: number = 15
   public movingDirection: PlayerDirection = PlayerDirection.NONE
   public airborne: boolean = false
+  public platformContactListener!: World.ContactListener
+  public footFixture!: Box2D.b2Fixture
   protected x: number
   protected y: number
   private isDynamic: boolean
@@ -89,11 +93,15 @@ export default class Player extends BaseEntity implements DrawableEntity {
 
     const shape = new Box2D.b2PolygonShape()
     shape.SetAsBox(this.width / 2, this.height / 2)
-    const fixture = this.body.CreateFixture(shape, 0.0)
+    const fixture = this.body.CreateFixture(shape, 1.5)
     fixture.SetUserData(1)
-    fixture.SetDensity(1.5)
+    // fixture.SetDensity(1.5)
     this.body.SetUserData({entity: this})
 
+    const footShape = new Box2D.b2PolygonShape()
+    footShape.SetAsBox(this.width / 2.3, 0.2, new Box2D.b2Vec2(0, -this.height / 2), 0)
+    this.footFixture = this.body.CreateFixture(footShape, 0.0)
+    this.footFixture.SetSensor(true)
 
     // var md = new Box2D.b2MassData()
     // md.set_mass(0.0)
@@ -103,8 +111,8 @@ export default class Player extends BaseEntity implements DrawableEntity {
     // this.body.SetMassData(md)
     this.body.ResetMassData()
 
-    // create a contact listener for contact with platforms 
-    this.platformContactListener = world.newBodyContactListener(this.body, this.onPlatformContact.bind(this))
+    // create a contact listener for contact with platforms
+    this.platformContactListener = new World.ContactListener(this.onPlatformContact.bind(this))
     world.registerBodyContactListener(this.platformContactListener)
   }
 
@@ -131,12 +139,18 @@ export default class Player extends BaseEntity implements DrawableEntity {
     ctx.restore()
   }
   
-  private onPlatformContact(begin, contactBody){
-    const {entity, position} = contactBody.GetUserData()
-    if(entity.constructor.name === 'Platform'){
-      this.airborne = !begin
-    } else if(entity.constructor.name == 'Walls'){
-      this.airborne = position === 'bottom' ? !begin : this.airborne
+  private onPlatformContact(begin: boolean, contact: Box2D.b2Contact){
+    const fixtureA = contact.GetFixtureA()
+    const fixtureB = contact.GetFixtureB()
+    const fixture = this.footFixture === fixtureA ? fixtureB : this.footFixture === fixtureB ? fixtureA : null
+    if(fixture){
+      const {entity, position} = fixture.GetBody().GetUserData()
+      if(entity.constructor.name === 'Platform'){
+        this.airborne = !begin
+      } else if(entity.constructor.name === 'Walls'){
+        this.airborne = position === 'bottom' ? !begin : this.airborne
+      }
+
     }
   }
   

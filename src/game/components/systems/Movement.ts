@@ -111,18 +111,17 @@ export default class MovementSystem extends BaseSystem<Player> {
     const vec = new Box2D.b2Vec2(0,0)
     return (keyDown: boolean, e: any) => {
       if(keyDown){
-        if(!entity.airborne){
+        if(!entity.airborne && !entity.jumping){
           entity.jumping = true
+          vec.y = entity.body.GetMass() * entity.jumpMultiplier
+          entity.body.ApplyLinearImpulse(vec, entity.body.GetWorldCenter(), true)
         }
       } else {
         // TODO: remove this when contact listeners are in place
         entity.jumping = false
       }
 
-      if(entity.jumping){
-        vec.y = entity.body.GetMass() * entity.jumpMultiplier
-        entity.body.ApplyLinearImpulse(vec, entity.body.GetWorldCenter(), true)
-      }
+      
     }
   }
 

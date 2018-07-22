@@ -19,7 +19,7 @@ interface PlayerObject {
 
 export default class GameScreen extends Screen {
   public camera!: Camera
-  public world: World
+  public world!: World
   public debugDraw: DebugDraw
   public players: PlayerObject[]
   public teams: object[]
@@ -35,6 +35,8 @@ export default class GameScreen extends Screen {
   private platform1!: Platform
   private platform2!: Platform
   private platform3!: Platform
+  
+  private drawDebug: boolean = false
 
 
   constructor(data = {} as {players: PlayerObject[], teams: object[]}) {
@@ -48,6 +50,18 @@ export default class GameScreen extends Screen {
     this.initWorld()
     this.initSystems()
     this.initEntities()
+
+    // create an input listener for debugging
+    this.$app.$input.newInputListener({
+      keyConfig: {
+        // when 1 is pressed, toggle drawDebug
+        '1.once': (keyDown: boolean) => {
+          if(!keyDown){
+            this.drawDebug = !this.drawDebug
+          }
+        },
+      },
+    }, true)
   }
 
   public initWorld() {
@@ -78,6 +92,11 @@ export default class GameScreen extends Screen {
     // Render
     this.renderSystem = new RenderSystem(this.$app.$context)
     this.engine.addSystem(this.renderSystem)
+
+    // const debugDrawSystem = new BaseSystem(true, 5, ()=>{
+    //   this.world.drawDebug()
+    // })
+    // this.engine.addSystem(debugDrawSystem)
 
     // Input
     this.inputSystem = new BaseSystem(true, 1, (delta) => {
@@ -119,6 +138,8 @@ export default class GameScreen extends Screen {
   public update(delta: number, time: number){
     this.world.step(delta)
     this.engine.update(delta)
-    // this.world.drawDebug(true)
+    if(this.drawDebug){
+      this.world.drawDebug()
+    }
   }
 }

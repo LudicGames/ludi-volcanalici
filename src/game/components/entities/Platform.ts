@@ -26,7 +26,7 @@ export default class Platform extends BaseEntity {
 
   public createB2D(world: any){
     const bd = new Box2D.b2BodyDef()
-    bd.set_position(new Box2D.b2Vec2(this.x, this.y))
+    bd.position = new Box2D.b2Vec2(this.x, this.y)
     this.body = world.CreateBody(bd)
 
     const shape = new Box2D.b2PolygonShape()
