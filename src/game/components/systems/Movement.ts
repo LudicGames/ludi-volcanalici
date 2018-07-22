@@ -67,7 +67,7 @@ export default class MovementSystem extends BaseSystem<Player> {
         r1: this.rotateEntity(entity, true),
 
         l1: this.rotateEntity(entity, false),
-        cross: this.boost(entity),
+        // cross: this.boost(entity),
 
         // rightStick: this.moveStick(entity, true),
         // leftStick: this.moveStick(entity, false),

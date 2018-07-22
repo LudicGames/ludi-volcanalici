@@ -139,11 +139,11 @@ export default class GameScreen extends Screen {
     // Players
     this.players.forEach((player, index) => {
       player.entity = new Player({x: 0, y: -9, width: .8, height: 2.5, color: 'green', world: this.world, gamepadIndex: index})
-      let gun = new Gun(this.world, 0, -9, 1, .2, 'red')
-      player.entity.grabGun(gun)
+      // let gun = new Gun(this.world, 0, -9, 1, .2, 'red')
+      // player.entity.grabGun(gun)
 
       this.engine.addEntity(player.entity)
-      this.engine.addEntity(gun)
+      // this.engine.addEntity(gun)
     })
   }
 
