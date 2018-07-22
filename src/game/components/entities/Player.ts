@@ -51,6 +51,8 @@ export default class Player extends BaseEntity implements DrawableEntity {
   public airborne: boolean = false
   public platformContactListener!: World.ContactListener
   public footFixture!: Box2D.b2Fixture
+  public currentGun: Gun = null
+  public guns: array = []
   protected x: number
   protected y: number
   private isDynamic: boolean
@@ -124,11 +126,11 @@ export default class Player extends BaseEntity implements DrawableEntity {
   get jumpMultiplier(){
     return this.jumpValue
   }
-  
+
   public getPosition() {
     return this.body.GetPosition()
   }
-  
+
   public draw(ctx: CanvasRenderingContext2D){
     const pos = this.getPosition()
     ctx.save()
@@ -161,9 +163,11 @@ export default class Player extends BaseEntity implements DrawableEntity {
 
   public shoot(){
     console.log("Player.shoot()")
-    this.currentGun.fire()
+    if(this.currentGun){
+      this.currentGun.fire()
+    }
   }
-  
+
   private onPlatformContact(begin: boolean, contact: Box2D.b2Contact){
     const fixtureA = contact.GetFixtureA()
     const fixtureB = contact.GetFixtureB()
@@ -178,5 +182,5 @@ export default class Player extends BaseEntity implements DrawableEntity {
 
     }
   }
-  
+
 }

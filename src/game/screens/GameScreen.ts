@@ -39,8 +39,8 @@ export default class GameScreen extends Screen {
   private platform1!: Platform
   private platform2!: Platform
   private platform3!: Platform
-  
-  private drawDebug: boolean = false
+
+  private drawDebug: boolean = true
 
 
   constructor(data = {} as {players: PlayerObject[], teams: object[]}) {

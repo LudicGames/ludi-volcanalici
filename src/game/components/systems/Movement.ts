@@ -60,14 +60,14 @@ export default class MovementSystem extends BaseSystem<Player> {
         'space.once': 'cross',
       },
       methods: {
-        left: this.moveEntity('x', entity, -this.maxVX, 'd'),
-        right: this.moveEntity('x', entity, this.maxVX, 'a'),
-        up: this.moveEntity('y', entity, this.maxVY, 's'),
-        down: this.moveEntity('y', entity, -this.maxVY, 'w'),
-        r1: this.rotateEntity(entity, true),
+        left: this.moveEntity(entity, 'left'),
+        right: this.moveEntity(entity, 'right'),
+        // up: this.moveEntity('y', entity, this.maxVY, 's'),
+        // down: this.moveEntity('y', entity, -this.maxVY, 'w'),
+        // r1: this.rotateEntity(entity, true),
 
-        l1: this.rotateEntity(entity, false),
-        // cross: this.boost(entity),
+        // l1: this.rotateEntity(entity, false),
+        cross: this.jump(entity),
 
         // rightStick: this.moveStick(entity, true),
         // leftStick: this.moveStick(entity, false),
@@ -121,7 +121,7 @@ export default class MovementSystem extends BaseSystem<Player> {
         entity.jumping = false
       }
 
-      
+
     }
   }
 
