@@ -151,9 +151,9 @@ export default class Player extends BaseEntity implements DrawableEntity {
     let jointDef = new Box2D.b2RevoluteJointDef()
     let axis = new Box2D.b2Vec2(0.0, 1.0)
     jointDef.Initialize(this.body, gun.body, gun.getPosition(), axis)
-    // jointDef.set_motorSpeed(10.0)
-    // jointDef.set_maxMotorTorque(20.0)
-    // jointDef.set_enableMotor(true)
+    jointDef.set_motorSpeed(10.0)
+    jointDef.set_maxMotorTorque(20.0)
+    jointDef.set_enableMotor(true)
     this.world.CreateJoint(jointDef)
   }
 

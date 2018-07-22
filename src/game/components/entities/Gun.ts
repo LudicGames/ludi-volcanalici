@@ -40,7 +40,7 @@ export default class Gun extends BaseEntity implements DrawableEntity {
     const shape = new Box2D.b2PolygonShape()
     shape.SetAsBox(this.width / 2, this.height / 2)
     this.fixture = this.body.CreateFixture(shape, 0.0)
-    this.fixture.SetDensity(1.0)
+    this.fixture.SetDensity(.1)
     this.fixture.SetUserData(2)
     this.body.ResetMassData()
   }
