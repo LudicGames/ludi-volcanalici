@@ -74,9 +74,9 @@ export default class ShootSystem extends BaseSystem<Player> {
   private shoot(entity: Player){
     return (keyDown: boolean, e: any) => {
       if(keyDown){
-        entity.shoot()
-      } else {
 
+      } else {
+        entity.shoot()
       }
     }
   }

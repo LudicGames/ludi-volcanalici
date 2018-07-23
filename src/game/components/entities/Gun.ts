@@ -94,7 +94,7 @@ export default class Gun extends BaseEntity implements DrawableEntity {
     bd.isSensor = false
 
     let body = this.world.CreateBody(bd)
-    body.SetLinearVelocity(new Box2D.b2Vec2(35, 0))
+    // body.SetLinearVelocity(new Box2D.b2Vec2(35, 0))
     body.SetGravityScale(.5)
 
     const shape = new Box2D.b2PolygonShape()
@@ -104,8 +104,9 @@ export default class Gun extends BaseEntity implements DrawableEntity {
     // fixture.SetUserData(3)
     body.ResetMassData()
 
-
-    // body.ApplyLinearImpulse(this.body.GetAngle(), body.GetWorldCenter())
+    let gunAngle = this.body.GetAngle()
+    console.log(gunAngle.get_x())
+    body.ApplyLinearImpulse(gunAngle, body.GetWorldCenter())
   }
 
 }
