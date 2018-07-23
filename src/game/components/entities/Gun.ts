@@ -70,6 +70,7 @@ export default class Gun extends BaseEntity implements DrawableEntity {
   }
 
   public fire(){
+    // TODO check bullets in clip, debounce, etc
     console.log("Gun.fire()")
     this.createBullet()
   }
@@ -79,22 +80,32 @@ export default class Gun extends BaseEntity implements DrawableEntity {
   }
 
   private createBullet(){
-    const pos = this.owner.getPosition(true)
-    let x = pos.x
+    const pos = this.getPosition(true)
+    console.log(pos.x)
+    let x = pos.x + 1
     let y = pos.y
-    let w = .1
-    let h = .2
+    let w = .3
+    let h = .1
 
     const bd = new Box2D.b2BodyDef()
     bd.set_position(new Box2D.b2Vec2(x, y))
+    bd.type = Box2D.b2BodyType.dynamic
+    bd.isBullet = true
+    bd.isSensor = false
+
     let body = this.world.CreateBody(bd)
+    body.SetLinearVelocity(new Box2D.b2Vec2(35, 0))
+    body.SetGravityScale(.5)
 
     const shape = new Box2D.b2PolygonShape()
-    shape.SetAsBox(this.width / 2, this.height / 2)
+    shape.SetAsBox(w / 2, h / 2)
     let fixture = body.CreateFixture(shape, 0.0)
-    fixture.SetDensity(1.0)
-    fixture.SetUserData(3)
+    fixture.SetDensity(.01)
+    // fixture.SetUserData(3)
     body.ResetMassData()
+
+
+    // body.ApplyLinearImpulse(this.body.GetAngle(), body.GetWorldCenter())
   }
 
 }

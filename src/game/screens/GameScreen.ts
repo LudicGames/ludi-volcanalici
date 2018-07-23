@@ -72,7 +72,7 @@ export default class GameScreen extends Screen {
     this.camera = new Camera(this.$app.$canvas)
     this.camera.centerWorldToCamera()
 
-    this.world = new World(0, -90.8)
+    this.world = new World(0, -9.8)
     this.debugDraw = DebugDraw.newDebugger(this.$app.$canvas)
     this.debugDraw.SetFlags(DebugDraw.e_shapeBit)
     this.world.SetDebugDraw(this.debugDraw)
@@ -139,7 +139,7 @@ export default class GameScreen extends Screen {
     // Players
     this.players.forEach((player, index) => {
       player.entity = new Player({x: 0, y: -9, width: .8, height: 2.5, color: 'green', world: this.world, gamepadIndex: index})
-      let gun = new Gun(this.world, 0, -9, 1, .2, 'red')
+      let gun = new Gun(this.world, 0, -9, 1.2, .2, 'red')
       player.entity.grabGun(gun)
 
       this.engine.addEntity(player.entity)

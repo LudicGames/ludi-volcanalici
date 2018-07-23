@@ -69,7 +69,7 @@ export default class MovementSystem extends BaseSystem<Player> {
         // l1: this.rotateEntity(entity, false),
         cross: this.jump(entity),
 
-        // rightStick: this.moveStick(entity, true),
+        rightStick: this.aim(entity),
         // leftStick: this.moveStick(entity, false),
       },
     }
@@ -85,6 +85,32 @@ export default class MovementSystem extends BaseSystem<Player> {
     }
 
     entity.movementListener = this.entityListenerMap[entity._id].listener
+  }
+
+  private aim(entity: Player, right: boolean){
+    const vec = new Box2D.b2Vec2(0,0)
+    const axisPoint = new Box2D.b2Vec2(0,0)
+    const dz = 0.12
+    return (x: number, y: number, e: any) => {
+      // -x:left, -y:up
+
+      if(Math.abs(x) > dz || Math.abs(y) > dz){
+        if(Math.abs(x) > dz){
+          axisPoint.set_x(x)
+        }
+        if(Math.abs(y) > dz){
+          axisPoint.set_y(-y)
+        }
+
+        const bodyAngle = entity.body.GetAngle()
+        const desiredAngle = Math.atan2(axisPoint.get_y(), axisPoint.get_x())
+
+        let gun = entity.currentGun
+        if(gun){
+          gun.body.SetTransform(gun.getPosition(), desiredAngle)
+        }
+      }
+    }
   }
 
   private moveEntity(entity: Player, dir: string){
