@@ -117,9 +117,8 @@ export default class GameScreen extends Screen {
     this.engine.addSystem(this.shootSystem)
 
     // Contact
-    this.contactSystem = new ContactSystem(this.world)
-    this.engine.addSystem(this.contactSystem)
-
+    // this.contactSystem = new ContactSystem(this.world)
+    // this.engine.addSystem(this.contactSystem)
   }
 
   public initEntities() {
@@ -128,7 +127,7 @@ export default class GameScreen extends Screen {
     this.engine.addEntity(this.walls)
 
     // Platforms
-    this.platform1 = new Platform(-8, -8.5, 9, .5, this.world, 'orange')
+    this.platform1 = new Platform(-8, -10, 9, .5, this.world, 'orange')
     this.platform2 = new Platform(8, -8.5, 9, .5, this.world, 'orange')
     this.platform3 = new Platform(0, -4.5, 9, .5, this.world, 'orange')
 
@@ -139,7 +138,7 @@ export default class GameScreen extends Screen {
     // Players
     this.players.forEach((player, index) => {
       player.entity = new Player({x: 0, y: -9, width: .8, height: 2.5, color: 'green', world: this.world, gamepadIndex: index})
-      let gun = new Gun(this.world, 0, -9, 1.2, .2, 'red')
+      let gun = new Gun(this.world, 0, -9, 0.7, .2, 'red')
       player.entity.grabGun(gun)
 
       this.engine.addEntity(player.entity)

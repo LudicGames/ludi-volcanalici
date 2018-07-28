@@ -113,38 +113,75 @@ export default class MovementSystem extends BaseSystem<Player> {
     }
   }
 
-  private moveEntity(entity: Player, dir: string){
+  private moveEntity(player: Player, dir: string){
     const vec = new Box2D.b2Vec2(0,0)
-    const totalMoveCycles = 4
-    let moveCycles = totalMoveCycles
+    let jumpCycles = 0
     return (keyDown: boolean, e: any) => {
       if(keyDown){
-        entity.movingDirection = dir === 'left' ? PlayerDirection.LEFT : PlayerDirection.RIGHT
+        player.movingDirection = dir === 'left' ? PlayerDirection.LEFT : PlayerDirection.RIGHT
+        player.facingDirection = player.movingDirection
       } else {
-        moveCycles = totalMoveCycles
-        entity.movingDirection = PlayerDirection.NONE
+        player.movingDirection = 0
+        jumpCycles = 0
       }
 
-      const vel = entity.body.GetLinearVelocity()
-      const desiredVel = entity.movingDirection * entity.moveMultiplier
+      const vel = player.body.GetLinearVelocity()
+      const desiredVel = player.movingDirection * player.moveMultiplier
       const velChange = desiredVel - vel.x
-      vec.x = entity.body.GetMass() * velChange / e.delta // f = mv/t
-      entity.body.ApplyForce(vec, entity.body.GetWorldCenter(), true)
+      vec.x = player.body.GetMass() * velChange / e.delta // f = mv/t
+
+      if(player.jumping){
+        jumpCycles++
+      } else {
+        jumpCycles = 0
+      }
+
+      // if we are pushing up agains a wall, we should apply a downward force
+      // as well to avoid it 'sticking' to the wall and create a slide effect
+      if(player.walling && !player.phasing && jumpCycles !== 1){
+        const slideVel = player.wallSlideFactor
+        const slideVelDiff = slideVel - vel.y
+        vec.y = player.body.GetMass() * slideVelDiff / e.delta
+      } else {
+        vec.y = 0
+      }
+
+      player.body.ApplyForce(vec, player.body.GetWorldCenter(), true)
     }
   }
 
-  private jump(entity: Player){
+  private jump(player: Player){
     const vec = new Box2D.b2Vec2(0,0)
+    const maxJumpCycles = 20
+    let jumpCycles = 0
     return (keyDown: boolean, e: any) => {
       if(keyDown){
-        if(!entity.airborne && !entity.jumping){
-          entity.jumping = true
-          vec.y = entity.body.GetMass() * entity.jumpMultiplier
-          entity.body.ApplyLinearImpulse(vec, entity.body.GetWorldCenter(), true)
+        if((!player.airborne || player.walling) && !player.jumping){
+          // console.log('jump')
+          player.jumping = true
+          vec.y = player.body.GetMass() * player.jumpMultiplier
+
+          if(player.walling){
+            vec.x = (-1 * player.facingDirection) * vec.y
+            // console.log('> ', 'walling', vec.x)
+          } else {
+            vec.x = 0
+          }
+          player.body.ApplyLinearImpulse(vec, player.body.GetWorldCenter(), true)
+        }
+        // cap jump cycles to max
+        if(jumpCycles < maxJumpCycles){
+          jumpCycles++
         }
       } else {
-        // TODO: remove this when contact listeners are in place
-        entity.jumping = false
+        // when we let go of the button and the player is jumping, until the start falling,
+        // we want to give the player a nudge downward to create variable jump heights
+        if((player.airborne || jumpCycles === 1) && player.jumping && !player.falling){
+          vec.y = -1 * (maxJumpCycles - jumpCycles)
+          player.body.ApplyLinearImpulse(vec, player.body.GetWorldCenter(), true)
+        }
+        player.jumping = false
+        jumpCycles = 0
       }
 
 

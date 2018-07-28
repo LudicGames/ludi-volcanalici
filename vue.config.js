@@ -10,6 +10,7 @@ module.exports = {
         '$systems': '@/game/components/systems',
         // allow for easier import syntax
         'ludic$': '@ludic/ludic/dist/ludic.commonjs2.js',
+        '@ludic/ludic$': '@ludic/ludic/dist/ludic.commonjs2.js',
         'ludic-vue$': '@ludic/ludic-vue',
         'ludic-box2d$': '@ludic/ludic-box2d',
         'ein$': '@ludic/ein',

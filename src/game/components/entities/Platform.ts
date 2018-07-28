@@ -1,11 +1,14 @@
 import {BaseEntity} from 'ein'
 import {Box2D} from 'ludic-box2d'
+import Player from '$entities/Player'
+import Box2DEntity from '$entities/Box2DEntity'
+import * as CategoryBits from '$entities/CategoryBits'
 
-export default class Platform extends BaseEntity {
+export default class Platform extends Box2DEntity {
   public width: number
   public height: number
-  public body: any
-  public fixture: any
+  public body!: Box2D.b2Body
+  public fixture!: Box2D.b2Fixture
   public color: string | CanvasGradient | CanvasPattern
   protected x: number
   protected y: number
@@ -31,9 +34,13 @@ export default class Platform extends BaseEntity {
 
     const shape = new Box2D.b2PolygonShape()
     shape.SetAsBox(this.width / 2, this.height / 2)
-    this.fixture = this.body.CreateFixture(shape, 0.0)
-    this.fixture.SetDensity(1.0)
-    this.fixture.SetUserData(2)
+    const fixtureDef = new Box2D.b2FixtureDef()
+    fixtureDef.shape = shape
+    fixtureDef.density = 0.0
+    fixtureDef.filter.categoryBits = CategoryBits.PLATFORM
+    fixtureDef.filter.maskBits = CategoryBits.PLAYER
+    fixtureDef.userData = 2
+    this.fixture = this.body.CreateFixture(fixtureDef)
     this.body.SetUserData({entity: this})
     this.body.ResetMassData()
   }
@@ -41,11 +48,21 @@ export default class Platform extends BaseEntity {
   public shouldCollide(me, them){
     const myPos = me.GetBody().GetPosition()
     const playerPos = them.GetBody().GetPosition()
-    if(playerPos.get_y() < myPos.get_y()){
-      return false
+    const entity = them.GetBody().entity
+    if(entity instanceof Player){
+      if((playerPos.y - (entity.height / 2)) < (myPos.y + (this.height / 2))){
+        // console.log('should NOT collide', them == entity.mainFixture, them == entity.footSensor, them == entity.leftSensor, them == entity.rightSensor)
+        // if the bottom of the player is below the top of the platform
+        // they should not collide
+        return false
+      } else {
+        // console.log('SHOULD collide', them == entity.mainFixture, them == entity.footSensor, them == entity.leftSensor, them == entity.rightSensor)
+        return true
+      }
     } else {
-      return true
+      return false
     }
+    
   }
 
   public draw(ctx: CanvasRenderingContext2D){

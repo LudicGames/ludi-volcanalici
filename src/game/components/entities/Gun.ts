@@ -3,13 +3,16 @@ import {BaseEntity} from 'ein'
 import {Box2D} from 'ludic-box2d'
 import { InputEventListener } from 'ludic'
 import DrawableEntity from '$entities/DrawableEntity'
+import Box2DEntity from '$entities/Box2DEntity'
+import * as CategoryBits from '$entities/CategoryBits'
 
-export default class Gun extends BaseEntity implements DrawableEntity {
+export default class Gun extends Box2DEntity implements DrawableEntity {
   public world: any
   public width: number
   public height: number
   public owner: any
   public color: string | CanvasGradient | CanvasPattern
+  public fixture!: Box2D.b2Fixture
   protected x: number
   protected y: number
 
@@ -39,9 +42,13 @@ export default class Gun extends BaseEntity implements DrawableEntity {
 
     const shape = new Box2D.b2PolygonShape()
     shape.SetAsBox(this.width / 2, this.height / 2)
-    this.fixture = this.body.CreateFixture(shape, 0.0)
-    this.fixture.SetDensity(.1)
-    this.fixture.SetUserData(2)
+    const fixtureDef = new Box2D.b2FixtureDef()
+    fixtureDef.shape = shape
+    fixtureDef.density = 0.1
+    fixtureDef.userData = 2
+    fixtureDef.filter.categoryBits = CategoryBits.GUN
+    fixtureDef.filter.maskBits = CategoryBits.PLATFORM
+    this.fixture = this.body.CreateFixture(fixtureDef)
     this.body.ResetMassData()
   }
 

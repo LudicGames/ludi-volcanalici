@@ -1,8 +1,9 @@
-import {Box2D} from 'ludic-box2d'
+import {Box2D, World} from 'ludic-box2d'
 import {BaseEntity} from 'ein'
 import DrawableEntity from '$entities/DrawableEntity'
+import Box2DEntity from '$entities/Box2DEntity'
 
-export default class Walls extends BaseEntity implements DrawableEntity {
+export default class Walls extends Box2DEntity implements DrawableEntity {
   public width: number
   public height: number
   public world: any
@@ -22,7 +23,7 @@ export default class Walls extends BaseEntity implements DrawableEntity {
     this.createB2D(world)
   }
 
-  public createB2D(world: any){
+  public createB2D(world: World){
     // Top
     const topBd = new Box2D.b2BodyDef()
     topBd.position = new Box2D.b2Vec2(0, (this.height / 2) - (this.padding + this.size / 2))
