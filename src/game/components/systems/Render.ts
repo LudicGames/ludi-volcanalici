@@ -9,7 +9,7 @@ const DEFAULTS = {
   },
 }
 
-export default class RenderSystem extends BaseSystem<BaseEntity & DrawableEntity> {
+export default class RenderSystem extends BaseSystem {
 
   private ctx: CanvasRenderingContext2D
 

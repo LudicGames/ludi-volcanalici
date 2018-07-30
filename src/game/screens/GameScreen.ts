@@ -86,7 +86,7 @@ export default class GameScreen extends Screen {
     })
     this.engine.addSystem(this.clearSystem)
 
-    // Camerae
+    // Camera
     this.cameraSystem = new BaseSystem(true, 5, (delta) => {
       this.camera.draw(this.$app.$context)
       // this.camera.drawAxes(this.$app.$context)
@@ -96,6 +96,11 @@ export default class GameScreen extends Screen {
     // Render
     this.renderSystem = new RenderSystem(this.$app.$context)
     this.engine.addSystem(this.renderSystem)
+
+    // Physics System
+    this.engine.addSystem(new BaseSystem(true, 2, (delta) => {
+      this.world.step(delta)
+    }))
 
     // const debugDrawSystem = new BaseSystem(true, 5, ()=>{
     //   this.world.drawDebug()
@@ -147,7 +152,6 @@ export default class GameScreen extends Screen {
   }
 
   public update(delta: number, time: number){
-    this.world.step(delta)
     this.engine.update(delta)
     if(this.drawDebug){
       this.world.drawDebug()

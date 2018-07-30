@@ -51,10 +51,13 @@ export default class Player extends Box2DEntity implements DrawableEntity {
   public airborne: boolean = false
   public walling: boolean = false // determines whether the player is touching a wall
   public phasing: boolean = false
+  public dodging: boolean = false
   public jumpFactor: number = 32
   public moveFactor: number = 20
   public airborneMoveFactor: number = 15
   public wallSlideFactor: number = -5
+  public jumpCycles: number = 0
+  public maxJumpCycles: number = 20
   public movingDirection: PlayerDirection = PlayerDirection.NONE
   public facingDirection: PlayerDirection = PlayerDirection.RIGHT
   public platformContactListener!: World.ContactListener
@@ -286,7 +289,6 @@ export default class Player extends Box2DEntity implements DrawableEntity {
     const entity = fixture.GetBody().entity
     // console.log(entity)
     if(entity instanceof Platform){
-      this.phasing = begin
       if(begin){
         const platformBody = fixture.GetBody()
     
@@ -303,8 +305,10 @@ export default class Player extends Box2DEntity implements DrawableEntity {
         }
         // no points are moving downward, contact should not be solid
         contact.SetEnabled(false)
+        this.phasing = true
       } else {
         contact.SetEnabled(true)
+        this.phasing = false
       }
     }
   }
