@@ -62,6 +62,8 @@ export default class MovementSystem extends BaseSystem {
       methods: {
         left: this.moveEntity(entity, 'left'),
         right: this.moveEntity(entity, 'right'),
+        up: this.jump(entity),
+        down: this.crouch(entity),
         // up: this.moveEntity('y', entity, this.maxVY, 's'),
         // down: this.moveEntity('y', entity, -this.maxVY, 'w'),
         // r1: this.rotateEntity(entity, true),
@@ -71,7 +73,7 @@ export default class MovementSystem extends BaseSystem {
         cross: this.jump(entity),
 
         rightStick: this.aim(entity),
-        // leftStick: this.moveStick(entity, false),
+        leftStick: this.moveStick(entity),
       },
     }
 
@@ -114,6 +116,57 @@ export default class MovementSystem extends BaseSystem {
     }
   }
 
+  private moveStick(player: Player){
+    const vec = new Box2D.b2Vec2(0,0)
+    const dz = 0.12
+    return (x: number, y: number, e: any) => {
+      // -x:left, -y:up
+
+      if(Math.abs(x) > dz || Math.abs(y) > dz){
+        if(Math.abs(x) > dz){
+          player.movingDirection = x < 0 ? PlayerDirection.LEFT : PlayerDirection.RIGHT
+          player.facingDirection = player.movingDirection
+        } else {
+          player.movingDirection = PlayerDirection.NONE
+        }
+        // if(Math.abs(y) > dz){
+        //   axisPoint.y = -y
+        // } else {
+        //   axisPoint.y = 0
+        // }
+      } else if(e.zeroed) {
+        player.movingDirection = PlayerDirection.NONE
+      }
+      this._moveEntity(player, vec)
+    }
+  }
+
+  private _moveEntity(player: Player, vec: Box2D.b2Vec2){
+    const vel = player.body.GetLinearVelocity()
+    const desiredVel = player.movingDirection * player.moveMultiplier
+    const velChange = desiredVel - vel.x
+    vec.x = player.body.GetMass() * velChange
+
+    // if we are pushing up against a wall, we should apply a downward force
+    // as well to avoid it 'sticking' to the wall and create a slide effect
+    if(player.walling && !player.phasing){
+      const slideVel = player.wallSlideFactor
+      const slideVelDiff = slideVel - vel.y
+      vec.y = player.body.GetMass() * slideVelDiff
+    } else {
+      vec.y = 0
+    }
+
+    if(player.jumping && player.jumpCycles < 10 && player.walling){
+      return
+    }
+    if(player.dodging){
+      return
+    }
+
+    player.body.ApplyLinearImpulse(vec, player.body.GetWorldCenter(), true)
+  }
+
   private moveEntity(player: Player, dir: string){
     const vec = new Box2D.b2Vec2(0,0)
     return (keyDown: boolean, e: any) => {
@@ -123,31 +176,7 @@ export default class MovementSystem extends BaseSystem {
       } else {
         player.movingDirection = 0
       }
-
-      const vel = player.body.GetLinearVelocity()
-      const desiredVel = player.movingDirection * player.moveMultiplier
-      const velChange = desiredVel - vel.x
-      vec.x = player.body.GetMass() * velChange
-
-      // if we are pushing up against a wall, we should apply a downward force
-      // as well to avoid it 'sticking' to the wall and create a slide effect
-      if(player.walling && !player.phasing){
-        const slideVel = player.wallSlideFactor
-        const slideVelDiff = slideVel - vel.y
-        vec.y = player.body.GetMass() * slideVelDiff
-      } else {
-        vec.y = 0
-      }
-
-      if(player.jumping && player.jumpCycles < 10 && player.walling){
-        return
-      }
-      if(player.dodging){
-        return
-      }
-
-      player.body.ApplyLinearImpulse(vec, player.body.GetWorldCenter(), true)
-
+      this._moveEntity(player, vec)
     }
   }
 
@@ -183,6 +212,18 @@ export default class MovementSystem extends BaseSystem {
       }
 
 
+    }
+  }
+
+  private crouch(player: Player){
+    return (keyDown: boolean, e: any) => {
+      if(keyDown){
+        if(!player.crouching){
+          player.crouching = true
+        }
+      } else {
+        player.crouching = false
+      }
     }
   }
 

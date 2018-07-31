@@ -52,6 +52,7 @@ export default class Player extends Box2DEntity implements DrawableEntity {
   public walling: boolean = false // determines whether the player is touching a wall
   public phasing: boolean = false
   public dodging: boolean = false
+  public crouching: boolean = false
   public jumpFactor: number = 32
   public moveFactor: number = 20
   public airborneMoveFactor: number = 15
