@@ -232,10 +232,10 @@ export default class MovementSystem extends BaseSystem {
     let dodgingEngaged = false
     return (keyDown: boolean, e: any) => {
       if(keyDown){
-        if(player.airborne && !player.dodging && !dodgingEngaged){
+        if(!player.dodging && player.dodgingEnabled && !dodgingEngaged){
           dodgingEngaged = true
           player.dodging = true
-          vec.x = player.facingDirection * player.body.GetMass() * 40
+          vec.x = player.facingDirection * player.body.GetMass() * player.dodgingFactor
           player.body.ApplyLinearImpulse(vec, player.body.GetWorldCenter(), true)
           setTimeout(() => {
             let vel = player.body.GetLinearVelocity()
@@ -244,7 +244,14 @@ export default class MovementSystem extends BaseSystem {
               player.body.ApplyLinearImpulse(vec, player.body.GetWorldCenter(), true)
             }
             player.dodging = false
-          }, 60)
+            if(player.dodgingTimoutEnabled){
+              // create a timeout where the player cannot dodge again
+              player.dodgingEnabled = false
+              setTimeout(() => {
+                player.dodgingEnabled = true
+              }, player.dodgingTimoutFactor)
+            }
+          }, player.dodgingDuration)
         }  
       } else {
         dodgingEngaged = false

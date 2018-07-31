@@ -52,11 +52,16 @@ export default class Player extends Box2DEntity implements DrawableEntity {
   public walling: boolean = false // determines whether the player is touching a wall
   public phasing: boolean = false
   public dodging: boolean = false
+  public dodgingEnabled: boolean = true
   public crouching: boolean = false
   public jumpFactor: number = 32
   public moveFactor: number = 20
   public airborneMoveFactor: number = 15
   public wallSlideFactor: number = -5
+  public dodgingFactor: number = 40
+  public dodgingDuration: number = 50 // ms
+  public dodgingTimoutEnabled: boolean = true
+  public dodgingTimoutFactor: number = 1300 // ms
   public jumpCycles: number = 0
   public maxJumpCycles: number = 20
   public movingDirection: PlayerDirection = PlayerDirection.NONE
@@ -66,7 +71,7 @@ export default class Player extends Box2DEntity implements DrawableEntity {
   public rightSensor!: Box2D.b2Fixture
   public leftSensor!: Box2D.b2Fixture
   public mainFixture!: Box2D.b2Fixture
-  public currentGun: Gun = null
+  public currentGun!: Gun
   public guns: array = []
   protected x: number
   protected y: number
@@ -189,6 +194,16 @@ export default class Player extends Box2DEntity implements DrawableEntity {
     ctx.translate(-(pos.x), -(pos.y))
     ctx.fillStyle = this.color
     ctx.fillRect(pos.x - this.width / 2, pos.y - this.height / 2, this.width, this.height)
+    if(!this.dodgingEnabled){
+      // draw a dodging disabled indicator
+      ctx.save()
+      ctx.fillStyle = 'orange'
+      ctx.beginPath()
+      ctx.arc(pos.x, pos.y + (this.height / 2) + 0.3, this.width / 4, 0, 2 * Math.PI)
+      ctx.closePath()
+      ctx.fill()
+      ctx.restore()
+    }
     ctx.restore()
   }
 
